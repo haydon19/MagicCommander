@@ -20,6 +20,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         setUpTabs(sampleViewPager);
 
         //ViewPager2 - Component Section
-
+        //setUpCounters(sampleViewPager);
         //Scroll down features in order
         //Display Life
 
@@ -126,6 +127,22 @@ public class MainActivity extends AppCompatActivity {
     }
     //---------------------
 
+    //-------------------------------------------------------------------------
+
+
+    //Counter Section - Health / Commander Damage / Poison Counters
+    private void setUpCounters(ViewPager2 sampleViewPager){
+        //Declare Components
+        TextView counterTextView = findViewById(R.id.counterTextView);
+        Button addButton = findViewById(R.id.addButton);
+        Button subtractButton = findViewById(R.id.subtractButton);
+
+
+
+    }
+
+
+
     class SampleAdapter extends FragmentStateAdapter{
 
         public SampleAdapter(@NonNull FragmentActivity fragmentActivity) {
@@ -143,7 +160,7 @@ public class MainActivity extends AppCompatActivity {
         @NonNull
         @Override
         public Fragment createFragment(int position) {
-            return new TabFragment(tabNames[position]);
+            return new CommanderMasterScreen(tabNames[position]);
         }
 
         @Override
