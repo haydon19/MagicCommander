@@ -5,6 +5,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.os.CountDownTimer;
 import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,6 +27,13 @@ public class CommanderMasterScreen extends Fragment {
     int maxCommanderDamage = 21;
     int maxPoisonCounters = 10;
 
+    //Components
+    TextView counterTextView;
+    Button addButton;
+    Button subtractButton;
+    ImageView symbolView;
+    TextView recentOperationView;
+    CountDownTimer recentOperationTimer;
 
     //Possibly give a game state to start at default settings in parameters.
     public CommanderMasterScreen(String title) {
@@ -35,6 +43,7 @@ public class CommanderMasterScreen extends Fragment {
         health = 40;
         commanderDamage = 0;
         poisonCounters = 0;
+
 
     }
 
@@ -51,41 +60,66 @@ public class CommanderMasterScreen extends Fragment {
         View root =  inflater.inflate(R.layout.fragment_commander_master_screen, container, false);
         //Add components
 
-        TextView counterTextView = root.findViewById(R.id.counterTextView);
+        counterTextView = root.findViewById(R.id.counterTextView);
         //TextView to only accept numbers.
         counterTextView.setInputType(InputType.TYPE_CLASS_NUMBER);
         counterTextView.setText(Integer.toString(health));
 
         //Add Buttons
-        Button addButton = root.findViewById(R.id.addButton);
+        addButton = root.findViewById(R.id.addButton);
         addButton.setText("+");
 
         addButton.setOnClickListener(new View.OnClickListener(){
             @SuppressLint("SetTextI18n")
             public void onClick(View v){
                 counterTextView.setText((Integer.parseInt(counterTextView.getText().toString()) + 1) + "");
+                setUpTimer();
+                recentOperationView.setText((Integer.parseInt(recentOperationView.getText().toString()) + 1) + "");
             }
         });
 
 
-        Button subtractButton = root.findViewById(R.id.subtractButton);
+        subtractButton = root.findViewById(R.id.subtractButton);
         subtractButton.setText("-");
 
         subtractButton.setOnClickListener(new View.OnClickListener(){
             @SuppressLint("SetTextI18n")
             public void onClick(View v){
                 counterTextView.setText((Integer.parseInt(counterTextView.getText().toString()) - 1) + "");
+                setUpTimer();
+                recentOperationView.setText((Integer.parseInt(recentOperationView.getText().toString()) - 1) + "");
             }
         });
 
         //Add Symbol Image
-        ImageView symbolView = root.findViewById(R.id.symbolView);
+        symbolView = root.findViewById(R.id.symbolView);
 
         //Add recentOperation View
-        TextView recentOperationView = root.findViewById(R.id.recentOperationView);
+        recentOperationView = root.findViewById(R.id.recentOperationView);
         recentOperationView.setText(Integer.toString(0));
 
 
         return root;
     }
+
+    public void setUpTimer(){
+        //If timer is already going, restart it.
+        if(recentOperationTimer != null){
+            recentOperationTimer.cancel();
+        }
+        recentOperationTimer = new CountDownTimer(5000, 1000) {
+
+            public void onTick(long millisUntilFinished) {
+                recentOperationView.setVisibility(View.VISIBLE);
+            }
+
+            public void onFinish() {
+                recentOperationView.setVisibility(View.INVISIBLE);
+                recentOperationView.setText("0");
+            }
+
+        }.start();
+    }
+
+
 }

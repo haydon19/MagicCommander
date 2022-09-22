@@ -27,11 +27,11 @@
 
     <TextView
         android:id="@+id/counterTextView"
-        android:layout_width="212dp"
-        android:layout_height="100dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginTop="1dp"
+        android:gravity="center"
         android:text="1000"
-        android:textAlignment="center"
         android:textSize="80sp"
         app:layout_constraintBottom_toTopOf="@+id/recentOperationView"
         app:layout_constraintEnd_toStartOf="@+id/subtractButton"
