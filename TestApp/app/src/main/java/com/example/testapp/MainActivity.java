@@ -10,21 +10,14 @@ import androidx.lifecycle.Lifecycle;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -34,6 +27,8 @@ public class MainActivity extends AppCompatActivity {
     String[] tabNames = {"Tab 1", "Tab 2", "Tab 3", "Tab 4"};
     String[] healthTabs = {"Commander Health","Commander Damage","Poison Damage"};
     EditText editText;
+
+
 
     //Main App activities created on startup.
 
@@ -47,32 +42,44 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //Set the ViewPager Views (Each view is attached to a tab)
-        ViewPager2 sampleViewPager = findViewById(R.id.sampleViewPager);
-        sampleViewPager.setAdapter(
-                new SampleAdapter(this)
+        ViewPager2 commanderInfoPager = findViewById(R.id.sampleViewPager);
+        commanderInfoPager.setAdapter(
+                new CommanderInformation(this)
         );
+
+        ViewPager2 cardViewPager = findViewById(R.id.CardViewer);
+        cardViewPager.setAdapter(
+                new CardViewerAdapter(this)
+        );
+
         //Set tabs
-        setUpTabs(sampleViewPager);
-
-        //ViewPager2 - Component Section
-        //setUpCounters(sampleViewPager);
-        //Scroll down features in order
-        //Display Life
-
-
-        //Display Commander Card
+        //Each tab may have multiple components that act differently.
+        setUpTabs(commanderInfoPager, cardViewPager);
 
 
     }
 
 
     //Tab Section ---------
-    private void setUpTabs(ViewPager2 sampleViewPager){
+    private void setUpTabs(ViewPager2 commanderInfoPager, ViewPager2 cardViewPager){
         //Set the Tab Layout
         TabLayout tabLayout = findViewById(R.id.tabLayout);
+
         new TabLayoutMediator(
                 tabLayout,
-                sampleViewPager,
+                commanderInfoPager,
+                new TabLayoutMediator.TabConfigurationStrategy() {
+                    @Override
+                    public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                        tab.setText(tabNames[position]);
+                        tab.setIcon(R.drawable.ic_launcher_background);
+                    }
+                }
+        ).attach();
+
+        new TabLayoutMediator(
+                tabLayout,
+                cardViewPager,
                 new TabLayoutMediator.TabConfigurationStrategy() {
                     @Override
                     public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
@@ -99,6 +106,8 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     }
+
+
     private void popUpEditTabText(TabLayout.Tab tab){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Name of Commander:");
@@ -130,30 +139,18 @@ public class MainActivity extends AppCompatActivity {
     //-------------------------------------------------------------------------
 
 
-    //Counter Section - Health / Commander Damage / Poison Counters
-    private void setUpCounters(ViewPager2 sampleViewPager){
-        //Declare Components
-        TextView counterTextView = findViewById(R.id.counterTextView);
-        Button addButton = findViewById(R.id.addButton);
-        Button subtractButton = findViewById(R.id.subtractButton);
+    //This information is controlled by the CommanderMasterScreen
+    class CommanderInformation extends FragmentStateAdapter{
 
-
-
-    }
-
-
-
-    class SampleAdapter extends FragmentStateAdapter{
-
-        public SampleAdapter(@NonNull FragmentActivity fragmentActivity) {
+        public CommanderInformation(@NonNull FragmentActivity fragmentActivity) {
             super(fragmentActivity);
         }
 
-        public SampleAdapter(@NonNull Fragment fragment) {
+        public CommanderInformation(@NonNull Fragment fragment) {
             super(fragment);
         }
 
-        public SampleAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
+        public CommanderInformation(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle) {
             super(fragmentManager, lifecycle);
         }
 
@@ -168,5 +165,29 @@ public class MainActivity extends AppCompatActivity {
             return tabNames.length;
         }
     }
+
+    //This information is controlled by the CardViewScreen.
+    class CardViewerAdapter extends FragmentStateAdapter{
+
+        public CardViewerAdapter(@NonNull FragmentActivity fragmentActivity){
+            super(fragmentActivity);
+        }
+
+        public CardViewerAdapter(@NonNull Fragment fragment) {super(fragment); }
+
+        public CardViewerAdapter(@NonNull FragmentManager fragmentManager, @NonNull Lifecycle lifecycle){
+            super(fragmentManager, lifecycle);
+        }
+
+        @NonNull
+        @Override
+        public Fragment createFragment(int position){
+            return new CardViewScreen(tabNames[position]);
+        }
+
+        @Override
+        public int getItemCount() {return tabNames.length; }
+    }
+
 
 }

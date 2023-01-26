@@ -40,7 +40,7 @@ public class CommanderMasterScreen extends Fragment {
 
         this.title = title;
 
-        health = 40;
+        this.health = 40;
         commanderDamage = 0;
         poisonCounters = 0;
 

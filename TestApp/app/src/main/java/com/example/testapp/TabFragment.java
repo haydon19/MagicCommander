@@ -14,11 +14,12 @@ public class TabFragment extends Fragment {
 
 
     private final String title;
-
+    public CommanderMasterScreen commanderScreen;
 
     public TabFragment(String title) {
         // Required empty public constructor
         this.title = title;
+        commanderScreen = new CommanderMasterScreen(title);
     }
 
 
