@@ -153,8 +153,9 @@ public class CardViewScreen extends Fragment {
     }
 
     public void searchForCard(String query){
-        //Clear the item list.
+        //Clear the item list. Notify the adapter of changes.
         itemList.clear();
+        adapter.notifyItemRemoved(0);
         //Hide the card image, we are trying to find a new card.
         cardImageView.setVisibility(View.GONE);
         //Recycler View set to visible.
