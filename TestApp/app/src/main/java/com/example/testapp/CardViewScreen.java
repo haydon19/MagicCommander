@@ -7,11 +7,13 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -46,7 +48,7 @@ public class CardViewScreen extends Fragment {
     public ArrayList<MagicCard> itemList;
     public String[] cardNames;
     public final String scryfallQuery = "https://scryfall.com/search?q=";
-
+    private int selectedPos = RecyclerView.NO_POSITION;
 
     //MagicCard Variables
     public Bitmap cardImage;
@@ -107,9 +109,16 @@ public class CardViewScreen extends Fragment {
 
         //Component initialization
         cardSearch = root.findViewById(R.id.cardSearch);
+        cardImageView = root.findViewById(R.id.cardImageView);
         cardView = root.findViewById(R.id.cardSearchView);
         cardView.setLayoutManager(new LinearLayoutManager(getContext()));
         cardView.setHasFixedSize(true);
+
+        //Set cardImageView visibility
+        if(cardImageView.getDrawable() == null){
+            cardImageView.setVisibility(View.GONE);
+        }
+
         //SearchBar listeners
         cardSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -144,7 +153,12 @@ public class CardViewScreen extends Fragment {
     }
 
     public void searchForCard(String query){
-
+        //Clear the item list.
+        itemList.clear();
+        //Hide the card image, we are trying to find a new card.
+        cardImageView.setVisibility(View.GONE);
+        //Recycler View set to visible.
+        cardView.setVisibility(View.VISIBLE);
         MagicCard newCard = new MagicCard("");
         try {
             newCard.cardTitle = new DownloadCardTitles().execute(query).get();
@@ -246,18 +260,9 @@ public class CardViewScreen extends Fragment {
         //Create new views (invoked by the layout manager)
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType){
-           View v = LayoutInflater.from(context).inflate(R.layout.list_item,viewGroup,false);
-           return new ViewHolder(v);
-
-            /*
-            Context context = viewGroup.getContext();
-            LayoutInflater inflater = LayoutInflater.from(context);
-
-            //Create a new view
-            View view = inflater.inflate(R.layout.list_item, viewGroup, false);
-
-            return new ViewHolder(view);
-            */
+           //Create a View
+            View v = LayoutInflater.from(context).inflate(R.layout.list_item,viewGroup,false);
+            return new ViewHolder(v);
         }
 
         //Replace the contents of a view (invoked by the layout manager)
@@ -267,16 +272,29 @@ public class CardViewScreen extends Fragment {
             MagicCard magicCard = mMagicCardList.get(position);
 
             viewHolder.cardHeading.setText(magicCard.cardTitle);
+            viewHolder.itemView.setSelected(selectedPos == position);
 
-            /*
-            //Get element from your dataset at this position and replace the contents
-            //of the view with that element
-            MagicCard magicCard = mMagicCardList.get(viewHolder.getAdapterPosition());
+            viewHolder.itemView.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view){
+                    Toast.makeText(getActivity(), "clicked on " + viewHolder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
 
-            //Set item views based on your views and data model
-            TextView textView = viewHolder.textView;
-            textView.setText(magicCard.getCardTitle());
-             */
+                    try {
+                        magicCard.cardImage = new DownloadCardImage().execute(magicCard.cardTitle).get();
+                    } catch (ExecutionException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    //Set the image
+                    cardImageView.setImageBitmap(magicCard.cardImage);
+                    //Make the image visible
+                    cardImageView.setVisibility(View.VISIBLE);
+                    //Hide the recycler view.
+                    cardView.setVisibility(View.GONE);
+                }
+            });
         }
 
         //Return the size of your dataset (invoked by the layout manager)
