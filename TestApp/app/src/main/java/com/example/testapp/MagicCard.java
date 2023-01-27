@@ -2,6 +2,8 @@ package com.example.testapp;
 
 import android.graphics.Bitmap;
 
+import java.util.ArrayList;
+
 public class MagicCard {
 
     public String cardTitle;
@@ -37,6 +39,15 @@ public class MagicCard {
         }else{
             return null;
         }
+    }
+
+    public static ArrayList<MagicCard> createMagicCardList(int numCards){
+        ArrayList<MagicCard> magicCards = new ArrayList<MagicCard>();
+
+        for(int i=1; i<=numCards;i++){
+            magicCards.add(new MagicCard(""));
+        }
+        return magicCards;
     }
 
 }

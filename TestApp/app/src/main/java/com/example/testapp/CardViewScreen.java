@@ -1,5 +1,6 @@
 package com.example.testapp;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.AsyncDifferConfig;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import org.jsoup.Jsoup;
@@ -24,6 +26,8 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 
 public class CardViewScreen extends Fragment {
@@ -35,7 +39,7 @@ public class CardViewScreen extends Fragment {
     public ImageView cardImageView;
     public String cardTitle;
     public RecyclerView cardView;
-
+    public SearchBarAdapter adapter;
 
     //SearchBar Variables
     public String searchQuery;
@@ -52,6 +56,7 @@ public class CardViewScreen extends Fragment {
 
     public CardViewScreen(String title){
         this.title = title;
+        itemList = new ArrayList<>();
         searchQuery = "";
 
     }
@@ -87,47 +92,6 @@ public class CardViewScreen extends Fragment {
         return cardName;
     }
 
-    public void searchForCard(String query){
-
-            new DownloadCardTitles().execute(query);
-
-            /*
-            Document document = Jsoup.connect(scryfallQuery + query).get();
-            if(document.baseUri().contains("search?q=")){
-                //This scrapes the cards displayed on scryfall (shown via a grid).
-                Elements cards = document.getElementsByClass("card-grid-item");
-                int index = 0;
-                //Keep the list at less than 3 for now.
-                while(index < 3 && index < cards.size()){
-                    String href = cards.get(index).text();
-                    try{
-                        //1. Search for magic card in scryfall
-                        //2. Get the magic cards title and image.
-                        //3. Add magic card to the visible list of cards.
-                        Document queryDoc = Jsoup.connect("https://scryfall.com/search?q=" + href).get();
-                        cardTitle = getCardTitle(queryDoc);
-                        cardImage = getCardImage(queryDoc);
-                        //cardImageView.setImageBitmap(getCardImage(queryDoc));
-                        MagicCard newCard = new MagicCard(cardTitle, cardImage);
-                        itemList.add(newCard);
-                        index++;
-                    }catch(Exception ex){
-                        System.out.println(ex.toString());
-                    }
-                }
-            }else {
-                try {
-                    //We have found the exact card you are looking for.
-                    cardTitle = getCardTitle(document);
-                    cardImageView.setImageBitmap(getCardImage(document));
-                }
-                catch (Exception ex){
-                    System.out.println(ex.toString());
-                }
-            }
-            */
-    }
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -143,18 +107,16 @@ public class CardViewScreen extends Fragment {
 
         //Component initialization
         cardSearch = root.findViewById(R.id.cardSearch);
-        cardImageView = root.findViewById(R.id.cardImage);
         cardView = root.findViewById(R.id.cardSearchView);
-
-
-
-
+        cardView.setLayoutManager(new LinearLayoutManager(getContext()));
+        cardView.setHasFixedSize(true);
         //SearchBar listeners
         cardSearch.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchForCard(query);
-                return false;
+
+                return true;
             }
 
             @Override
@@ -166,6 +128,35 @@ public class CardViewScreen extends Fragment {
         return root;
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
+
+        dataInitialized();
+
+        adapter = new SearchBarAdapter(getContext(), itemList);
+        cardView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+    }
+
+    private void dataInitialized(){
+        itemList = new ArrayList<MagicCard>();
+    }
+
+    public void searchForCard(String query){
+
+        MagicCard newCard = new MagicCard("");
+        try {
+            newCard.cardTitle = new DownloadCardTitles().execute(query).get();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        itemList.add(0,newCard);
+        adapter.notifyItemInserted(0);
+    }
 
     private class DownloadCardTitles extends AsyncTask<String, Void, String> {
 
@@ -179,13 +170,13 @@ public class CardViewScreen extends Fragment {
             try {
                 Document document = Jsoup.connect(scryfallQuery + queries[0]).get();
                 title = getCardTitle(document);
-
             } catch (Exception e){
                 Log.e("Error", e.getMessage());
             }
 
 
             Log.d("tag","DownloadCardTitle: " + title);
+
             return title;
         }
 
@@ -194,8 +185,6 @@ public class CardViewScreen extends Fragment {
         }
 
     }
-
-
 
 
     public class DownloadCardImage extends AsyncTask<String, Integer, Bitmap> {
@@ -230,49 +219,70 @@ public class CardViewScreen extends Fragment {
 
     public class SearchBarAdapter extends RecyclerView.Adapter<SearchBarAdapter.ViewHolder>{
 
-        private String[] localDataSet;
+        Context context;
+        private List<MagicCard> mMagicCardList;
+
+        //Constructor for adapter.
+        public SearchBarAdapter(Context context, ArrayList<MagicCard> magicCards){
+            this.context = context;
+            this.mMagicCardList = magicCards;
+        }
 
 
         public class ViewHolder extends RecyclerView.ViewHolder{
-            private final TextView textView;
+
+            private final TextView cardHeading;
 
             public ViewHolder(View view){
                 super(view);
-                textView = (TextView) view.findViewById(R.id.cardHeading);
+                cardHeading = (TextView) view.findViewById(R.id.cardHeading);
             }
 
             public TextView getTextView(){
-                return textView;
+                return cardHeading;
             }
-
         }
 
-        //Initialize the dataset of the Adapter
-        public SearchBarAdapter(String[] dataSet){
-            localDataSet = dataSet;
-        }
-
-        //Create new views (invoked by the layour manager)
+        //Create new views (invoked by the layout manager)
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int viewType){
+           View v = LayoutInflater.from(context).inflate(R.layout.list_item,viewGroup,false);
+           return new ViewHolder(v);
+
+            /*
+            Context context = viewGroup.getContext();
+            LayoutInflater inflater = LayoutInflater.from(context);
+
             //Create a new view
-            View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, viewGroup, false);
+            View view = inflater.inflate(R.layout.list_item, viewGroup, false);
 
             return new ViewHolder(view);
+            */
         }
 
         //Replace the contents of a view (invoked by the layout manager)
         @Override
         public void onBindViewHolder(ViewHolder viewHolder, final int position){
+
+            MagicCard magicCard = mMagicCardList.get(position);
+
+            viewHolder.cardHeading.setText(magicCard.cardTitle);
+
+            /*
             //Get element from your dataset at this position and replace the contents
             //of the view with that element
-            viewHolder.getTextView().setText(localDataSet[position]);
+            MagicCard magicCard = mMagicCardList.get(viewHolder.getAdapterPosition());
+
+            //Set item views based on your views and data model
+            TextView textView = viewHolder.textView;
+            textView.setText(magicCard.getCardTitle());
+             */
         }
 
         //Return the size of your dataset (invoked by the layout manager)
         @Override
         public int getItemCount(){
-            return localDataSet.length;
+            return mMagicCardList.size();
         }
     }
 
