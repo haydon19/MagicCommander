@@ -3,6 +3,7 @@ package com.example.testapp;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -49,6 +50,7 @@ public class CardViewScreen extends Fragment {
     public String[] cardNames;
     public final String scryfallQuery = "https://scryfall.com/search?q=";
     private int selectedPos = RecyclerView.NO_POSITION;
+    private int listSize = 5;
 
     //MagicCard Variables
     public Bitmap cardImage;
@@ -160,26 +162,93 @@ public class CardViewScreen extends Fragment {
         cardImageView.setVisibility(View.GONE);
         //Recycler View set to visible.
         cardView.setVisibility(View.VISIBLE);
-        MagicCard newCard = new MagicCard("");
+        List<MagicCard> cards = new ArrayList<MagicCard>();
         try {
-            newCard.cardTitle = new DownloadCardTitles().execute(query).get();
+            Log.d("tag","Scraping card data...");
+            cards = new getListofCards().execute(query).get();
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        itemList.add(0,newCard);
-        adapter.notifyItemInserted(0);
+        if(!cards.isEmpty()) {
+            itemList.addAll(cards);
+            adapter.notifyDataSetChanged();
+        }
+
+
+
     }
+
+    private class getListofCards extends AsyncTask<String, Void, List<MagicCard>>{
+
+        List<MagicCard> cardTitles = new ArrayList<MagicCard>();
+
+        protected List<MagicCard> doInBackground(String...queries) {
+
+            // implement API in background and store the response in current variable
+            String title = null;
+            int index = 0;
+            try {
+                Document listOfCardsDocument = Jsoup.connect(scryfallQuery + queries[0]).get();
+                //If more than one card matches this description...
+                if(listOfCardsDocument.baseUri().contains("search?q=")){
+                    Elements cards = listOfCardsDocument.getElementsByClass("card-grid-item");
+                    while(index < listSize && index < cards.size()){
+                        MagicCard card = new MagicCard("");
+                        String href = cards.get(index).text();
+                        try{
+                            listOfCardsDocument = Jsoup.connect(scryfallQuery + href).get();
+                            Log.d("tag", "Found: " + title);
+                            title = getCardTitle(listOfCardsDocument);
+                            if (title != null) {
+                                card.cardTitle = title;
+                                cardTitles.add(card);
+                            }
+                            index++;
+                        }catch(Exception e){
+                            Log.e("Error", e.getMessage());
+                        }
+                    }
+                }else{
+                    //We found the card we are looking for...
+                    try {
+                        Document singleCardDocument = Jsoup.connect(scryfallQuery + queries[0]).get();
+                        MagicCard card = new MagicCard("");
+                        title = getCardTitle(singleCardDocument);
+                        card.cardTitle = title;
+                        cardTitles.add(card);
+
+                    } catch (Exception e){
+                        Log.e("Error", e.getMessage());
+                    }
+                }
+            } catch (Exception e){
+                Log.e("Error", e.getMessage());
+            }
+
+
+            Log.d("tag","Finished getting list of cards...");
+
+            return cardTitles;
+        }
+
+        protected void onPostExecute(String result) {
+
+        }
+
+    }
+
 
     private class DownloadCardTitles extends AsyncTask<String, Void, String> {
 
         String title;
+        Document queryDoc;
 
         protected String doInBackground(String...queries) {
-            // implement API in background and store the response in current variable
 
+            // implement API in background and store the response in current variable
             String title = null;
 
             try {
@@ -241,6 +310,7 @@ public class CardViewScreen extends Fragment {
         public SearchBarAdapter(Context context, ArrayList<MagicCard> magicCards){
             this.context = context;
             this.mMagicCardList = magicCards;
+
         }
 
 
@@ -253,7 +323,8 @@ public class CardViewScreen extends Fragment {
                 cardHeading = (TextView) view.findViewById(R.id.cardHeading);
             }
 
-            public TextView getTextView(){
+            public TextView getTextView()
+            {
                 return cardHeading;
             }
         }
@@ -273,6 +344,7 @@ public class CardViewScreen extends Fragment {
             MagicCard magicCard = mMagicCardList.get(position);
 
             viewHolder.cardHeading.setText(magicCard.cardTitle);
+            viewHolder.cardHeading.setTextColor(Color.BLACK);
             viewHolder.itemView.setSelected(selectedPos == position);
 
             viewHolder.itemView.setOnClickListener(new View.OnClickListener(){
