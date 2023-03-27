@@ -114,7 +114,7 @@ public class CardViewScreen extends Fragment {
         cardImageView = root.findViewById(R.id.cardImageView);
         cardView = root.findViewById(R.id.cardSearchView);
         cardView.setLayoutManager(new LinearLayoutManager(getContext()));
-        cardView.setHasFixedSize(true);
+        cardView.setHasFixedSize(false);
 
         //Set cardImageView visibility
         if(cardImageView.getDrawable() == null){
@@ -126,7 +126,8 @@ public class CardViewScreen extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 searchForCard(query);
-
+                adapter.notifyDataSetChanged();
+                cardSearch.clearFocus();
                 return true;
             }
 
@@ -174,10 +175,7 @@ public class CardViewScreen extends Fragment {
 
         if(!cards.isEmpty()) {
             itemList.addAll(cards);
-            adapter.notifyDataSetChanged();
         }
-
-
 
     }
 
@@ -232,36 +230,6 @@ public class CardViewScreen extends Fragment {
             Log.d("tag","Finished getting list of cards...");
 
             return cardTitles;
-        }
-
-        protected void onPostExecute(String result) {
-
-        }
-
-    }
-
-
-    private class DownloadCardTitles extends AsyncTask<String, Void, String> {
-
-        String title;
-        Document queryDoc;
-
-        protected String doInBackground(String...queries) {
-
-            // implement API in background and store the response in current variable
-            String title = null;
-
-            try {
-                Document document = Jsoup.connect(scryfallQuery + queries[0]).get();
-                title = getCardTitle(document);
-            } catch (Exception e){
-                Log.e("Error", e.getMessage());
-            }
-
-
-            Log.d("tag","DownloadCardTitle: " + title);
-
-            return title;
         }
 
         protected void onPostExecute(String result) {
@@ -344,13 +312,11 @@ public class CardViewScreen extends Fragment {
             MagicCard magicCard = mMagicCardList.get(position);
 
             viewHolder.cardHeading.setText(magicCard.cardTitle);
-            viewHolder.cardHeading.setTextColor(Color.BLACK);
             viewHolder.itemView.setSelected(selectedPos == position);
 
             viewHolder.itemView.setOnClickListener(new View.OnClickListener(){
                 @Override
                 public void onClick(View view){
-                    Toast.makeText(getActivity(), "clicked on " + viewHolder.getAdapterPosition(), Toast.LENGTH_SHORT).show();
 
                     try {
                         magicCard.cardImage = new DownloadCardImage().execute(magicCard.cardTitle).get();
