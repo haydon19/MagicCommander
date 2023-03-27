@@ -8,20 +8,20 @@
     tools:context=".CommanderMasterScreen">
 
     <Button
-        android:id="@+id/addButton"
+        android:id="@+id/subtractButton"
         android:layout_width="99dp"
         android:layout_height="0dp"
-        android:text="+"
+        android:text="-"
         android:textSize="34sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/subtractButton"
+        android:id="@+id/addButton"
         android:layout_width="99dp"
         android:layout_height="0dp"
-        android:text="-"
+        android:text="+"
         android:textSize="34sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -36,20 +36,21 @@
         android:text="1000"
         android:textSize="80sp"
         app:layout_constraintBottom_toTopOf="@+id/recentOperationView"
-        app:layout_constraintEnd_toStartOf="@+id/subtractButton"
+        app:layout_constraintEnd_toStartOf="@+id/addButton"
         app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toEndOf="@+id/addButton"
+        app:layout_constraintStart_toEndOf="@+id/subtractButton"
         app:layout_constraintTop_toBottomOf="@+id/symbolView" />
 
     <ImageView
         android:id="@+id/symbolView"
         android:layout_width="42dp"
         android:layout_height="40dp"
-        android:src="@android:drawable/btn_star"
+        android:layout_marginTop="16dp"
         app:layout_constraintBottom_toTopOf="@+id/counterTextView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@drawable/heart_icon" />
 
     <TextView
         android:id="@+id/recentOperationView"

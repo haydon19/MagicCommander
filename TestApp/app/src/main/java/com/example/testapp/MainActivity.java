@@ -25,9 +25,6 @@ import com.google.android.material.tabs.TabLayoutMediator;
 public class MainActivity extends AppCompatActivity {
 
     String[] tabNames = {"Tab 1", "Tab 2", "Tab 3", "Tab 4"};
-    String[] healthTabs = {"Commander Health","Commander Damage","Poison Damage"};
-    EditText editText;
-
 
 
     //Main App activities created on startup.
