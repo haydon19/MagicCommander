@@ -14,10 +14,8 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
@@ -65,6 +63,8 @@ public class MainActivity extends AppCompatActivity {
         new TabLayoutMediator(
                 tabLayout,
                 commanderInfoPager,
+                false,
+                false,
                 new TabLayoutMediator.TabConfigurationStrategy() {
                     @Override
                     public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
@@ -77,11 +77,12 @@ public class MainActivity extends AppCompatActivity {
         new TabLayoutMediator(
                 tabLayout,
                 cardViewPager,
+                false,
+                false,
                 new TabLayoutMediator.TabConfigurationStrategy() {
                     @Override
                     public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
                         tab.setText(tabNames[position]);
-                        tab.setIcon(R.drawable.ic_launcher_background);
                     }
                 }
         ).attach();
@@ -108,7 +109,6 @@ public class MainActivity extends AppCompatActivity {
     private void popUpEditTabText(TabLayout.Tab tab){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Name of Commander:");
-
         final EditText input = new EditText(this);
         LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,

@@ -3,22 +3,18 @@ package com.example.testapp;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.SearchView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.AsyncDifferConfig;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -26,10 +22,10 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 
 
@@ -40,20 +36,14 @@ public class CardViewScreen extends Fragment {
     //Visual Components
     public SearchView cardSearch;
     public ImageView cardImageView;
-    public String cardTitle;
     public RecyclerView cardView;
     public SearchBarAdapter adapter;
 
     //SearchBar Variables
     public String searchQuery;
     public ArrayList<MagicCard> itemList;
-    public String[] cardNames;
     public final String scryfallQuery = "https://scryfall.com/search?q=";
-    private int selectedPos = RecyclerView.NO_POSITION;
-    private int listSize = 5;
 
-    //MagicCard Variables
-    public Bitmap cardImage;
     //Adapters
 
 
@@ -72,7 +62,7 @@ public class CardViewScreen extends Fragment {
         Bitmap cardImage = null;
         Elements image = doc.getElementsByTag("img");
         try {
-            URL cardUrl = new URL(image.first().attr("src"));
+            URL cardUrl = new URL(Objects.requireNonNull(image.first()).attr("src"));
             cardImage = BitmapFactory.decodeStream(cardUrl.openConnection().getInputStream());
         } catch (Exception e) {
             Log.d("Error: ",e.toString());
@@ -190,12 +180,15 @@ public class CardViewScreen extends Fragment {
             int index = 0;
             try {
                 Document listOfCardsDocument = Jsoup.connect(scryfallQuery + queries[0]).get();
+
                 //If more than one card matches this description...
                 if(listOfCardsDocument.baseUri().contains("search?q=")){
                     Elements cards = listOfCardsDocument.getElementsByClass("card-grid-item");
+                    int listSize = 5;
                     while(index < listSize && index < cards.size()){
                         MagicCard card = new MagicCard("");
                         String href = cards.get(index).text();
+                        Log.d("debug","List of cards: " + href);
                         try{
                             listOfCardsDocument = Jsoup.connect(scryfallQuery + href).get();
                             Log.d("tag", "Found: " + title);
@@ -312,6 +305,7 @@ public class CardViewScreen extends Fragment {
             MagicCard magicCard = mMagicCardList.get(position);
 
             viewHolder.cardHeading.setText(magicCard.cardTitle);
+            int selectedPos = RecyclerView.NO_POSITION;
             viewHolder.itemView.setSelected(selectedPos == position);
 
             viewHolder.itemView.setOnClickListener(new View.OnClickListener(){
