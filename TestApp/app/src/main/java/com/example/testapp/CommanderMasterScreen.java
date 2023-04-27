@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 
 import android.os.CountDownTimer;
-import android.provider.SyncStateContract;
 import android.text.InputType;
 import android.util.Log;
 import android.view.GestureDetector;
@@ -17,19 +16,14 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import java.util.Dictionary;
 
 public class CommanderMasterScreen extends Fragment {
 
     //Global variables
-    public final String title;
-    public int health = 40;
-    public int commanderDamage;
-    public int poisonCounters;
-    public int counterIndex = 0;
-    //Max variables
-    int maxCommanderDamage = 21;
-    int maxPoisonCounters = 10;
+    int counterIndex = 0;
+    //Global Objects
+    CommanderCounters _commanderCounters;
 
     //Components
     TextView counterTextView;
@@ -41,12 +35,7 @@ public class CommanderMasterScreen extends Fragment {
 
     //Possibly give a game state to start at default settings in parameters.
     public CommanderMasterScreen(String title) {
-
-        this.title = title;
-
-        this.health = 40;
-        this.commanderDamage = 0;
-        this.poisonCounters = 1;
+        _commanderCounters = new CommanderCounters();
     }
 
     @Override
@@ -65,7 +54,7 @@ public class CommanderMasterScreen extends Fragment {
         counterTextView = root.findViewById(R.id.counterTextView);
         //TextView to only accept numbers.
         counterTextView.setInputType(InputType.TYPE_CLASS_NUMBER);
-        counterTextView.setText(Integer.toString(health));
+        counterTextView.setText(_commanderCounters.GetCommanderCounterText(counterIndex));
 
         //Add Buttons
         addButton = root.findViewById(R.id.addButton);
@@ -74,7 +63,8 @@ public class CommanderMasterScreen extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener(){
             @SuppressLint("SetTextI18n")
             public void onClick(View v){
-                counterTextView.setText((Integer.parseInt(counterTextView.getText().toString()) + 1) + "");
+                _commanderCounters.AddCommanderCounter(counterIndex);
+                counterTextView.setText(_commanderCounters.GetCommanderCounterText(counterIndex) + "");
                 setUpTimer();
                 recentOperationView.setText((Integer.parseInt(recentOperationView.getText().toString()) + 1) + "");
             }
@@ -87,7 +77,8 @@ public class CommanderMasterScreen extends Fragment {
         subtractButton.setOnClickListener(new View.OnClickListener(){
             @SuppressLint("SetTextI18n")
             public void onClick(View v){
-                counterTextView.setText((Integer.parseInt(counterTextView.getText().toString()) - 1) + "");
+                _commanderCounters.SubtractCommanderCounter(counterIndex);
+                counterTextView.setText(_commanderCounters.GetCommanderCounterText(counterIndex) + "");
                 setUpTimer();
                 recentOperationView.setText((Integer.parseInt(recentOperationView.getText().toString()) - 1) + "");
             }
@@ -95,7 +86,7 @@ public class CommanderMasterScreen extends Fragment {
 
         //Add Symbol Image
         symbolView = root.findViewById(R.id.symbolView);
-        symbolView.setImageResource(R.drawable.heart_icon);
+        symbolView.setImageResource(_commanderCounters.GetCommanderCounterImage(counterIndex));
         //Add recentOperation View
         recentOperationView = root.findViewById(R.id.recentOperationView);
         recentOperationView.setText(Integer.toString(0));
@@ -111,6 +102,8 @@ public class CommanderMasterScreen extends Fragment {
                     @Override
                     public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                            float velocityY) {
+                        //end the recentOperationView timer.
+                        endTimer();
 
                         final int SWIPE_MIN_DISTANCE = 120;
                         final int SWIPE_MAX_OFF_PATH = 250;
@@ -157,23 +150,9 @@ public class CommanderMasterScreen extends Fragment {
 
 
     public void swapCounter(int index){
-        switch(index){
-            case(0):
-                //set symbol view.
-                symbolView.setImageResource(R.drawable.heart_icon);
-                counterTextView.setText(Integer.toString(health));
-                break;
-            case(1):
-                //set symbol view.
-                symbolView.setImageResource(R.drawable.commander_icon);
-                counterTextView.setText(Integer.toString(commanderDamage));
-                break;
-            case(2):
-                //set symbol view.
-                symbolView.setImageResource(R.drawable.poison_icon);
-                counterTextView.setText(Integer.toString(poisonCounters));
-                break;
-        }
+
+        symbolView.setImageResource(_commanderCounters.GetCommanderCounterImage(index));
+        counterTextView.setText(_commanderCounters.GetCommanderCounterText(index));
     }
 
     public void setUpTimer(){
@@ -193,5 +172,13 @@ public class CommanderMasterScreen extends Fragment {
             }
 
         }.start();
+    }
+
+    public void endTimer(){
+        if(recentOperationTimer != null){
+            recentOperationTimer.cancel();
+            recentOperationView.setVisibility(View.INVISIBLE);
+            recentOperationView.setText("0");
+        }
     }
 }
