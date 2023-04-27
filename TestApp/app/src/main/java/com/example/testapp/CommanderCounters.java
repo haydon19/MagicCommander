@@ -33,19 +33,19 @@ public class CommanderCounters {
 
     //region Getters / Setters
 
-    public String GetCommanderCounterText(int counterIndex){
+    public String getCommanderCounterText(int counterIndex){
         switch (counterIndex){
             case(0):
-                return String.valueOf(GetCommanderHealth());
+                return String.valueOf(getCommanderHealth());
             case(1):
-                return String.valueOf(GetCommanderDamage());
+                return String.valueOf(getCommanderDamage());
             case(2):
-                return String.valueOf(GetCommanderPoison());
+                return String.valueOf(getCommanderPoison());
         }
         return "0";
     }
 
-    public int GetCommanderCounterImage(int counterIndex){
+    public int getCommanderCounterImage(int counterIndex){
         switch(counterIndex){
             case(0):
                 return healthSymbol;
@@ -58,62 +58,62 @@ public class CommanderCounters {
         return healthSymbol;
     }
 
-    public int GetCommanderHealth(){ return commanderHealth; }
+    public int getCommanderHealth(){ return commanderHealth; }
 
-    public void SetCommanderHealth(int health){
+    public void setCommanderHealth(int health){
         commanderHealth = health;
     }
 
-    public int GetCommanderDamage(){ return commanderDamage; }
+    public int getCommanderDamage(){ return commanderDamage; }
 
-    public void SetCommanderDamage(int damage){
+    public void setCommanderDamage(int damage){
         commanderDamage = damage;
     }
 
-    public int GetCommanderPoison(){ return commanderPoison; }
+    public int getCommanderPoison(){ return commanderPoison; }
 
-    public void SetCommanderPoison(int poison){
+    public void setCommanderPoison(int poison){
         commanderPoison = poison;
     }
 
-    public void SetCounterImage(int image){
+    public void setCounterImage(int image){
         counterTypeImage = image;
     }
 
-    public boolean PoisonDeath(){
+    public boolean poisonDeath(){
         return commanderPoison >= maxCommanderPoison;
     }
 
-    public boolean CommanderDeath(){
+    public boolean commanderDeath(){
         return commanderDamage >= maxCommanderDamage;
     }
     //endregion
 
     //region Methods
-    public void AddCommanderCounter(int counterIndex){
+    public void addCommanderCounter(int counterIndex){
         switch(counterIndex){
             case(0):
-                SetCommanderHealth(GetCommanderHealth() + 1);
+                setCommanderHealth(getCommanderHealth() + 1);
                 break;
             case(1):
-                SetCommanderDamage(GetCommanderDamage() + 1);
+                setCommanderDamage(getCommanderDamage() + 1);
                 break;
             case(2):
-                SetCommanderPoison(GetCommanderPoison() + 1);
+                setCommanderPoison(getCommanderPoison() + 1);
                 break;
         }
     }
 
-    public void SubtractCommanderCounter(int counterIndex){
+    public void subtractCommanderCounter(int counterIndex){
         switch(counterIndex){
             case(0):
-                SetCommanderHealth(GetCommanderHealth() - 1);
+                setCommanderHealth(getCommanderHealth() - 1);
                 break;
             case(1):
-                SetCommanderDamage(GetCommanderDamage() - 1);
+                setCommanderDamage(getCommanderDamage() - 1);
                 break;
             case(2):
-                SetCommanderPoison(GetCommanderPoison() - 1);
+                setCommanderPoison(getCommanderPoison() - 1);
                 break;
         }
     }

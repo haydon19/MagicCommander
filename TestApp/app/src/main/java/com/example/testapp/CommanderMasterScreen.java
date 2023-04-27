@@ -54,7 +54,7 @@ public class CommanderMasterScreen extends Fragment {
         counterTextView = root.findViewById(R.id.counterTextView);
         //TextView to only accept numbers.
         counterTextView.setInputType(InputType.TYPE_CLASS_NUMBER);
-        counterTextView.setText(_commanderCounters.GetCommanderCounterText(counterIndex));
+        counterTextView.setText(_commanderCounters.getCommanderCounterText(counterIndex));
 
         //Add Buttons
         addButton = root.findViewById(R.id.addButton);
@@ -63,8 +63,8 @@ public class CommanderMasterScreen extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener(){
             @SuppressLint("SetTextI18n")
             public void onClick(View v){
-                _commanderCounters.AddCommanderCounter(counterIndex);
-                counterTextView.setText(_commanderCounters.GetCommanderCounterText(counterIndex) + "");
+                _commanderCounters.addCommanderCounter(counterIndex);
+                counterTextView.setText(_commanderCounters.getCommanderCounterText(counterIndex) + "");
                 setUpTimer();
                 recentOperationView.setText((Integer.parseInt(recentOperationView.getText().toString()) + 1) + "");
             }
@@ -77,8 +77,8 @@ public class CommanderMasterScreen extends Fragment {
         subtractButton.setOnClickListener(new View.OnClickListener(){
             @SuppressLint("SetTextI18n")
             public void onClick(View v){
-                _commanderCounters.SubtractCommanderCounter(counterIndex);
-                counterTextView.setText(_commanderCounters.GetCommanderCounterText(counterIndex) + "");
+                _commanderCounters.subtractCommanderCounter(counterIndex);
+                counterTextView.setText(_commanderCounters.getCommanderCounterText(counterIndex) + "");
                 setUpTimer();
                 recentOperationView.setText((Integer.parseInt(recentOperationView.getText().toString()) - 1) + "");
             }
@@ -86,7 +86,7 @@ public class CommanderMasterScreen extends Fragment {
 
         //Add Symbol Image
         symbolView = root.findViewById(R.id.symbolView);
-        symbolView.setImageResource(_commanderCounters.GetCommanderCounterImage(counterIndex));
+        symbolView.setImageResource(_commanderCounters.getCommanderCounterImage(counterIndex));
         //Add recentOperation View
         recentOperationView = root.findViewById(R.id.recentOperationView);
         recentOperationView.setText(Integer.toString(0));
@@ -151,8 +151,8 @@ public class CommanderMasterScreen extends Fragment {
 
     public void swapCounter(int index){
 
-        symbolView.setImageResource(_commanderCounters.GetCommanderCounterImage(index));
-        counterTextView.setText(_commanderCounters.GetCommanderCounterText(index));
+        symbolView.setImageResource(_commanderCounters.getCommanderCounterImage(index));
+        counterTextView.setText(_commanderCounters.getCommanderCounterText(index));
     }
 
     public void setUpTimer(){

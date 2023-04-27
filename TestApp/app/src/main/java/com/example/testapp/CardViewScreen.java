@@ -156,7 +156,7 @@ public class CardViewScreen extends Fragment {
         List<MagicCard> cards = new ArrayList<MagicCard>();
         try {
             Log.d("tag","Scraping card data...");
-            cards = new getListofCards().execute(query).get();
+            cards = new GetListofCards().execute(query).get();
         } catch (ExecutionException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
@@ -169,7 +169,7 @@ public class CardViewScreen extends Fragment {
 
     }
 
-    private class getListofCards extends AsyncTask<String, Void, List<MagicCard>>{
+    private class GetListofCards extends AsyncTask<String, Void, List<MagicCard>>{
 
         List<MagicCard> cardTitles = new ArrayList<MagicCard>();
 
