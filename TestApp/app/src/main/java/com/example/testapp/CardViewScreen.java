@@ -172,6 +172,7 @@ public class CardViewScreen extends Fragment {
     private class GetListofCards extends AsyncTask<String, Void, List<MagicCard>>{
 
         List<MagicCard> cardTitles = new ArrayList<MagicCard>();
+        boolean isRunning;
 
         protected List<MagicCard> doInBackground(String...queries) {
 
@@ -188,9 +189,11 @@ public class CardViewScreen extends Fragment {
                     while(index < listSize && index < cards.size()){
                         MagicCard card = new MagicCard("");
                         String href = cards.get(index).text();
+                        href = href.replace(" ", "-");
                         Log.d("debug","List of cards: " + href);
+
                         try{
-                            listOfCardsDocument = Jsoup.connect(scryfallQuery + href).get();
+                            listOfCardsDocument = Jsoup.connect(scryfallQuery + "!" + href).get();
                             Log.d("tag", "Found: " + title);
                             title = getCardTitle(listOfCardsDocument);
                             if (title != null) {
@@ -225,8 +228,17 @@ public class CardViewScreen extends Fragment {
             return cardTitles;
         }
 
-        protected void onPostExecute(String result) {
+        @Override
+        protected void onPreExecute() {
+            isRunning = true;
+        }
 
+        protected void onPostExecute(Void result) {
+            isRunning = false;
+        }
+
+        public boolean isRunning(){
+            return isRunning;
         }
 
     }
@@ -243,9 +255,9 @@ public class CardViewScreen extends Fragment {
 
 
             try {
-                Document document = Jsoup.connect(scryfallQuery + queries[0]).get();
+                String href = "!" + queries[0].replace(" ", "-");
+                Document document = Jsoup.connect(scryfallQuery + href).get();
                 icon = getCardImage(document);
-
 
             } catch (Exception e){
                 Log.e("Error", e.getMessage());
